@@ -1,0 +1,239 @@
+        local WindUI = loadstring(game:HttpGet("https://pastefy.app/ddceJmmm/raw"))()
+
+        WindUI:Popup({
+            Title = "👑尊贵的"..game.Players.LocalPlayer.DisplayName.."用户",
+            Icon = "info",
+            Content = "欢迎使用宿傩脚本",
+            Buttons = {
+                {
+                    Title = "取消",
+                    Callback = function() end,
+                    Variant = "Tertiary",
+                },
+                {
+                    Title = "执行",
+                    Icon = "arrow-right",
+                    Callback = function() 
+                        DDZX = true 
+                    end,
+                    Variant = "Primary",
+                }   
+            }
+        })
+
+        repeat
+            wait()
+        until DDZX
+       
+       local Window = WindUI:CreateWindow({
+            Title = " 宿傩脚本",
+            Icon = "",
+            Author = ("" .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name),
+            Folder = "Sukuna",
+            Size = UDim2.fromOffset(100, 150),
+            Transparent = true,
+            Theme = "Dark",
+            UserEnabled = false,
+            SideBarWidth = 200,
+            HasOutline = true
+        })
+
+窗口：EditOpenButton({
+title="宿傩脚本"，
+图标="剑"，
+角半径=UDim.new(0，16)，
+行程厚度=2，
+color=ColorSequence.New(Color3.FromHex("FF0F7B")，Color3.来自Hex(“F89B29”))，
+可拖动=真
+        })
+
+本地选项卡=窗口：选项卡({
+标题="选项卡"，
+图标="剑"，
+锁定=false，
+        })
+
+本地按钮=
+选项卡：按钮(
+    {
+title=T("被遗弃")，
+DESC=T("加载被遗弃菜单")，
+锁定=false，
+回调=函数()
+游戏：GetService("RunService")心跳：连接(函数()
+游戏。TextChatService。ChatWindowConfiguration。enabled=true
+结束)
+
+本地函数modifyPrompt(提示)
+prompt.HoldDuration=0
+prompt.RequiresLineOfSight=false
+prompt.MaxActivationDistance=15
+            end
+        
+for_，ipairs中的提示符(工作区：GetDescendants())执行
+如果提示：Isa("ProximityPrompt")，则
+modifyPrompt(提示)
+                end
+            end
+
+工作区。 后代添加：连接(函数(实例)
+如果实例：Isa("ProximityPrompt")，则
+modifyPrompt(实例)
+                end
+结束)
+
+本地选项卡=窗口：选项卡({
+title=T("被遗弃")，
+图标=“鸟”，
+锁定=false，
+            })
+
+本地ESPT
+本地textLabels={}
+本地连接={}
+本地progressConnections={}
+            
+局部函数createEspText(对象，文本，颜色)
+如果textLabels[obj]，则返回end
+                
+本地公告牌=Instance.new("BillboardGui")
+billboard.Adornee=obj
+billboard.Size=UDim2.new(0，200，0，50)
+billboard.StudsOffset=Vector3.new(0，3，0)
+billboard.AlwaysOnTop=true
+                
+本地TextLabel=Instance.new("TextLabel")
+textLabel.Size=UDim2.new(1，0，1，0)
+textLabel.BackgroundTransparency=1
+textLabel.Text=text
+textLabel.TextColor3=颜色
+TextLabel.TextStrokeColor3=颜色3.FromRGB(0，0，0)
+textLabel.TextStrokeTransparency=0
+textLabel.TextSize=20
+textLabel.Font=枚举.Font.SourceSansBold
+textLabel.Parent=公告牌
+billboard.Parent=obj
+textLabels[obj]=广告牌
+            
+桌子。插入(连接，对象。AncestryChanged：连接(函数(_，父项))
+如果不是父级，则
+如果textLabels[obj]，则
+textLabels[对象]：删除()
+textLabels[obj]=nil
+                        end
+                    end
+结束))
+            end
+            
+本地函数setupEsp()
+对于对象，成对标签(textLabels)执行
+标签：删除()
+                end
+textLabels={}
+                
+for_，conn在ipairs(progressConnections)中执行
+连接：断开()
+                end
+progressConnections={}
+            
+局部颜色={
+幸存者=Color3.fromRGB(0，255，0)，
+killer=Color3.fromRGB(255，0，0)，
+generator=Color3.fromRGB(0，191，255)，
+item=Color3.fromRGB(255，255，0)
+                }
+            
+本地函数setupPlayerEsp(文件夹，类型名称)
+for_，ipairs中的obj(文件夹：getChildren())do
+如果obj:FindFirstChild("HumanoidRootPart")，则
+createEspText(obj.HumanoidRootPart，类型名称.."："..obj.Name，颜色[类型名称])
+                        end
+                    end
+            
+桌子。插入(连接，文件夹。ChildAdded:Connect(函数(obj)
+如果obj:FindFirstChild("HumanoidRootPart")，则
+createEspText(obj.HumanoidRootPart，类型名称.."："..obj.Name，颜色[类型名称])
+                        end
+结束))
+                end
+                
+如果工作区：FindFirstChild("Player")，则
+如果workspace.Player:FindFirstChilds("Survivors")，则
+setupPlayerEsp(工作区。玩家。幸存者，"幸存者")
+                    end
+如果workspace.Players:FindFirstChild("Killer")，则
+setupPlayerEsp(工作区、玩家、杀手、“杀手”)
+                    end
+                end
+            
+本地函数setupGeneratorEsp()
+本地ingameFolder=workspace:FindFirstChild("Map")和workspace。地图：FindFirstChild(“Ingame”)
+如果是ingameFolder，则
+局部mapFolder=ingameFolder:FindFirstChild("Map")
+如果mapFolder，则
+for_，g在ipairs(mapFolder:GetChildren())中执行
+如果g.name=="Generator"和g:FindFirstChild("Main")，则
+createEspText(g.Main，T("发电机进度：")..G.Progress.Value，colors.Generator)
+                                    
+本地progressConn=g.进步。更改：连接(函数()
+如果textLabels[g.Main]，则
+textLabels[g.Main].TextLabel.Text=T("发电机进度：")..G.Progress.Value
+结束
+结束)
+桌子。插入(progressConnections，progressConn)
+结束
+结束
+            
+table.insert(连接，mapFolder.ChildAdded：连接(函数(子)
+如果child.name=="Generator"和child:FindFirstChild("Main")，则
+createEspText(child.Main，T("发电机进度：")..child.Progress.Value，colors.Generator)
+                                    
+本地progressConn=子项。进步。更改：连接(函数()
+如果textLabels[child.Main]，则
+textLabels[child.Main].TextLabel.Text=T("发电机进度：")..child.Progress.Value
+结束
+结束)
+桌子。插入(progressConnections，progressConn)
+                                end
+结束))
+                        end
+                    end
+                end
+                
+setupGeneratorEsp()
+            
+本地项目={"Medkit"，"BloxyCola"}
+本地函数setupItemEsp()
+for_，ipairs中的item(Items)do
+对于_，ipairs中的obj(工作区.地图。游戏：GetDescendants())
+如果obj:Isa("Model")和obj.Name==item，则
+for_，ipair中的子元素(obj:GetChildren())do
+如果子代：Isa("基础部件")，则
+createEspText(child，T("物品：")..obj.Name，colors.Item)
+打破
+结束
+                                end
+结束
+                        end
+                        
+桌子。 插入(连接，工作区。 地图。 游戏。 后代添加：连接(函数(后代)
+如果后代：Isa("模型")和table.find(Items，descendant.Name)，则
+对于_，在ipairs中的子代(子代：getChildren())do
+如果子代：Isa("基础部件")，则
+createEspText(child，T("物品：")..descendant.Name，colors.Item)
+打破
+结束
+                                end
+                            end
+结束))
+                    end
+                end
+                
+setupItemEsp()
+结束
+            
+本地函数清理()
+对于_，conn在ipairs(连接)中执行
+连接：断开()
+                end
+连接
