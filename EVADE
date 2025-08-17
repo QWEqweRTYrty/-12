@@ -1,0 +1,586 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/ImamGV/CompKiller/refs/heads/main/Source"))()
+local LibraryESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/RGV-devid/Scripts/refs/heads/main/ESP"))()
+
+local function Tracer(target, color)
+local Tracer = Drawing.new("Line")
+game:GetService("RunService").RenderStepped:Connect(function()
+Tracer.Color = Color
+if getgenv().TracerESP and target.Parent ~= nil then
+local camera = workspace.CurrentCamera
+local vector, onScreen = camera:WorldToViewportPoint(target:IsA("Model") and target:GetPivot().Position or target:IsA("BasePart") and target.Position)
+if onScreen then
+Tracer.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 1)
+Tracer.To = Vector2.new(vector.X, vector.Y)
+Tracer.Visible = true
+else
+Tracer.Visible = false
+end
+end
+end)
+end
+local Notifier = Library.newNotify()
+
+local ConfigManager = Library:ConfigManager({
+	Directory = "Evade-UI",
+	Config = "Evade-Configs"
+})
+
+Library:Loader("rbxassetid://95073582077930" , 2.5).yield()
+
+local Window = Library:AddWindow({
+	Name = "Evade",
+	Keybind = "LeftAlt",
+	Logo = "rbxassetid://1038410268",
+	Scale = Library.Scale.Window,
+	TextSize = 15,
+})
+
+local Watermark = Window:Watermark();
+
+local User = Watermark:AddText({
+	Icon = "User",
+	Text = game.Players.LocalPlayer.Name,
+})
+
+local Clock = Watermark:AddText({
+	Icon = "Clock",
+	Text = Library:GetDate(),
+})
+
+local Time = Watermark:AddText({
+	Icon = "Time",
+	Text = "...",
+})
+
+task.spawn(function()
+	while true do task.wait()
+		Time:SetText(Library:GetTimeNow())
+                Clock:SetText(Library:GetDate())
+	end
+end)
+
+local PlaceID = Watermark:AddText({
+	Icon = "Place ID",
+	Text = game.PlaceId,
+})
+
+local Tabs = {
+	Main = Window:DrawTab({Name = "主页", Icon = "apple", EnableScrolling = true}),
+	Setting = Window:DrawTab({Name = "设置", Type = "Single", Icon = "settings-3", EnableScrolling = true}),
+}
+
+local Section = {
+	Farm = Tabs.Main:DrawSection({Name = "挂机农场", Position = "left"}),
+	Players = Tabs.Main:DrawSection({Name = "玩家功能", Position = "left"}),
+	Miscellaneous = Tabs.Main:DrawSection({Name = "杂项功能", Position = "right"}),
+	Visual = Tabs.Main:DrawSection({Name = "视觉效果", Position = "right"}),
+	SettingESP = Tabs.Main:DrawSection({Name = "ESP设置", Position = "right"}),
+}
+
+local _Part = Instance.new("Part", workspace)
+   _Part.Anchored = true
+   _Part.CFrame = CFrame.new(100,0,100)
+   _Part.Material = "Plastic"
+   _Part.Transparency = 0
+   _Part.Size = Vector3.new(5,1.2,5)
+
+Section.Farm:AddSlider({
+	Name = "挂机高度",
+	Min = 500,
+	Max = 3000,
+	Default = 500,
+	Round = 0,
+	Callback = function(v)
+		_G.HeightFarm = v
+	end
+})
+_G.HeightFarm = "500"
+Section.Farm:AddToggle({
+	Name = "挂机模式",
+	Default = false,
+	Callback = function(v)
+		_G.AFKFarm = v
+		if v then
+			AFKFarm = game:GetService("RunService").RenderStepped:Connect(function()
+				if not _G.TicketFarm and _G.AFKFarm then
+					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(100, _G.HeightFarm, 100)
+				end
+				if _G.TicketFarm and _G.AFKFarm and not workspace.Game.Effects.Tickets:FindFirstChildWhichIsA("Model") then
+					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(100, _G.HeightFarm, 100)
+				end
+			end)
+		else
+			AFKFarm:Disconnect()
+			game.Players.LocalPlayer.Character:FindFirstChild('HumanoidRootPart').CFrame = CFrame.new(0, -10000, 0)
+		end
+	end
+})
+Section.Farm:AddToggle({
+	Name = "门票农场",
+	Default = false,
+	Callback = function(v)
+		_G.TicketFarm = v
+		if v then
+			TicketsFarm = game:GetService("RunService").RenderStepped:Connect(function()
+				for i, v in next, workspace.Game.Effects.Tickets:GetDescendants() do
+					if v.IsA(v, "BasePart") and v.Name == "HumanoidRootPart" then
+						game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(v.Position)
+					end
+				end
+			end)
+		else
+			TicketsFarm:Disconnect()
+		end
+	end
+})
+local _Part2 = Instance.new("Part", workspace)
+   _Part2.Anchored = true
+   _Part2.CFrame = CFrame.new(0,0,0)
+   _Part2.Material = "Plastic"
+   _Part2.Transparency = 1
+   _Part2.Size = Vector3.new(5,1.2,5)
+
+Section.Farm:AddToggle({
+	Name = "现金农场",
+	Default = false,
+	Callback = function(v)
+		if v then
+			CashFarm = game:GetService("RunService").Stepped:Connect(function()
+				for i, v in ipairs(workspace.Game.Players:GetChildren()) do
+					if v:GetAttribute('Downed') then
+						_Part2.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame - Vector3.new(0,3.5,0)
+						game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(v.HumanoidRootPart.Position) - Vector3.new(0,5,0)
+						game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Character"):WaitForChild("Interact"):FireServer("Revive", true, v.Name)
+					end
+				end
+			end)
+		else
+			CashFarm:Disconnect()
+		end
+	end
+})
+
+Section.Players:AddSlider({
+	Name = "飞行速度",
+	Min = 50,
+	Max = 300,
+	Default = 50,
+	Round = 0,
+	Callback = function(v)
+		_G.FlySpeed = v
+	end
+})
+Section.Players:AddToggle({
+	Name = "启用飞行",
+	Default = false,
+	Callback = function(v)
+		_G.Fly = v
+		if _G.Fly == false then
+			if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("GyroHandler") then
+				game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler:Destroy()
+				game.Players.LocalPlayer.Character.HumanoidRootPart.GyroHandler:Destroy()
+				game.Players.LocalPlayer.Character.Humanoid.PlatformStand = false
+			end
+		end
+		while _G.Fly do
+			if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("GyroHandler") then
+				game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.MaxForce = Vector3.new(9e9,9e9,9e9)
+				game.Players.LocalPlayer.Character.HumanoidRootPart.GyroHandler.MaxTorque = Vector3.new(9e9,9e9,9e9)
+				game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
+				game.Players.LocalPlayer.Character.HumanoidRootPart.GyroHandler.CFrame = Workspace.CurrentCamera.CoordinateFrame
+				game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity = Vector3.new()
+				if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X > 0 then
+					game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity + game.Workspace.CurrentCamera.CFrame.RightVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X * _G.FlySpeed)
+				end
+				if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X < 0 then
+					game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity + game.Workspace.CurrentCamera.CFrame.RightVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X * _G.FlySpeed)
+				end
+				if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z > 0 then
+					game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity - game.Workspace.CurrentCamera.CFrame.LookVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z * _G.FlySpeed)
+				end
+				if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z < 0 then
+					game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity - game.Workspace.CurrentCamera.CFrame.LookVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z * _G.FlySpeed)
+				end
+			elseif game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") == nil and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("GyroHandler") == nil then
+				local bv = Instance.new("BodyVelocity")
+				local bg = Instance.new("BodyGyro")
+
+				bv.Name = "VelocityHandler"
+				bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+				bv.MaxForce = Vector3.new(0,0,0)
+				bv.Velocity = Vector3.new(0,0,0)
+
+				bg.Name = "GyroHandler"
+				bg.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+				bg.MaxTorque = Vector3.new(0,0,0)
+				bg.P = 1000
+				bg.D = 50
+			end
+			task.wait()
+		end
+	end
+})
+Section.Players:AddToggle({
+	Name = "常驻行走",
+	Default = false,
+	Callback = function(v)
+		if v then
+			CanWalk = game:GetService("RunService").RenderStepped:Connect(function()
+				if workspace.Game.Players:WaitForChild(game.Players.LocalPlayer.Name):GetAttribute('Downed')==true then
+					workspace.Game.Players:WaitForChild(game.Players.LocalPlayer.Name):SetAttribute('Downed', false)
+				end
+			end)
+		else
+			CanWalk:Disconnect()
+		end
+	end
+})
+Section.Players:AddToggle({
+	Name = "常驻吹哨",
+	Default = false,
+	Callback = function(v)
+		_G.AutoWhistle = v
+		game:GetService("RunService").RenderStepped:Connect(function()
+			if _G.AutoWhistle then
+				game:GetService("ReplicatedStorage").Events.Character.Whistle:FireServer(true)
+			end
+		end)
+	end
+})
+Section.Players:AddToggle({
+	Name = "自动复活",
+	Default = false,
+	Callback = function(v)
+		_G.AutoRespawn = v
+		game:GetService("RunService").RenderStepped:Connect(function()
+			if _G.AutoRespawn then
+				if workspace.Game.Players:WaitForChild(game.Players.LocalPlayer.Name):GetAttribute('Downed') then
+					game:GetService("ReplicatedStorage").Events.Player.ChangePlayerMode:FireServer(true)
+				end
+			end
+		end)
+	end
+})
+Section.Players:AddButton({
+	Name = "立即复活",
+	Callback = function()
+		game:GetService("ReplicatedStorage").Events.Player.ChangePlayerMode:FireServer(true)
+	end
+})
+
+Section.Miscellaneous:AddToggle({
+	Name = "显示回合时间",
+	Default = false,
+	Callback = function(v)
+		if v then
+			local ScreenGui = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer.PlayerGui)
+			ScreenGui.Name = "RoundTimerScreen"
+			ScreenGui.ResetOnSpawn = false
+			local Frame = Instance.new("Frame", ScreenGui)
+			Frame.Position = UDim2.new(0.425,0,0.1,0)
+			Frame.BackgroundColor3 = Color3.new(0,0,0)
+			Frame.BackgroundTransparency = 0.75
+			Frame.Size = UDim2.new(0.15,0,0.1,0)
+			local ImageLabel = Instance.new("TextLabel", Frame)
+			ImageLabel.Position = UDim2.new(0.5,0,0.4,0)
+			ImageLabel.BackgroundColor3 = Color3.new(0,0,0)
+			ImageLabel.BackgroundTransparency = 0.75
+			ImageLabel.Size = UDim2.new(0,0,0,0)
+			ImageLabel.Text = "回合时间:\n" .. workspace.Game.Stats:GetAttribute("Timer") .. "s"
+			ImageLabel.TextSize = "14"
+			ImageLabel.Font = "RobotoMono"
+			ImageLabel.TextColor3 = Color3.new(1,1,1)
+			local UiCorner = Instance.new("UICorner", Frame)
+			local UiStroke = Instance.new("UIStroke", Frame)
+			UiStroke.Color = Color3.fromRGB(0,255,255)
+			UiStroke.Thickness = 2
+			local UiStroke2 = Instance.new("UIStroke", ImageLabel)
+			UiStroke2.Color = Color3.fromRGB(0,255,255)
+			UiStroke2.Thickness = 1.25
+			game:GetService("RunService").RenderStepped:Connect(function()
+				ImageLabel.Text = "回合时间:\n" .. workspace.Game.Stats:GetAttribute("Timer") .. "s"
+			end)
+		else
+			for _,v in pairs(game.Players:GetDescendants()) do
+				if v.Name == "RoundTimerScreen" then
+					v:Destroy()
+				end
+			end
+		end
+	end
+})
+Section.Miscellaneous:AddToggle({
+	Name = "显示游戏时长",
+	Default = false,
+	Callback = function(v)
+		if v then
+			local ScreenGui = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer.PlayerGui)
+			ScreenGui.ResetOnSpawn = false
+			ScreenGui.Name = "AFKScreen"
+			local ImageLabel = Instance.new("TextLabel", ScreenGui)
+			ImageLabel.Position = UDim2.new(0,0,0,0)
+			ImageLabel.BackgroundColor3 = Color3.fromRGB(0,255,255)
+			ImageLabel.BackgroundTransparency = 0.5
+			ImageLabel.Size = UDim2.new(1,0,1,0)
+			ImageLabel.Text = "游戏时长:" .. workspace.DistributedGameTime
+			ImageLabel.TextSize = "50"
+			ImageLabel.Font = "RobotoMono"
+			ImageLabel.TextColor3 = Color3.new(1,1,1)
+			game:GetService("RunService").RenderStepped:Connect(function()
+				ImageLabel.Text = string.format("%s%1.f", "游戏时长:",workspace.DistributedGameTime)
+			end)
+		else
+			for _,v in pairs(game.Players:GetDescendants()) do
+				if v.Name == "AFKScreen" then
+					v:Destroy()
+				end
+			end
+		end
+	end
+})
+Section.Miscellaneous:AddToggle({
+	Name = "隐藏所有UI",
+	Default = false,
+	Callback = function(v)
+		_G.HideAllUI = v
+		while _G.HideAllUI do wait()
+			if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Shared") then
+				game:GetService("Players").LocalPlayer.PlayerGui.Shared.Enabled = not _G.HideAllUI
+			end
+			if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Menu") then
+				game:GetService("Players").LocalPlayer.PlayerGui.Menu.Enabled = not _G.HideAllUI
+			end
+		end
+	end
+})
+
+Section.Visual:AddToggle({
+	Name = "机器人ESP",
+	Default = false,
+	Callback = function(v)
+		if v then
+			for i, v in pairs(workspace.Game.Players:GetChildren()) do
+				if not game.Players:FindFirstChild(v.Name) and not v:FindFirstChild("Nextbots_ESP") then
+					LibraryESP:AddESP(v, v.Name, Color3.fromRGB(255,0,0), 14, "Nextbots_ESP")
+					Tracer(v, Color3.new(1))
+				end
+			end
+			NextbotsESP = workspace.Game.Players.ChildAdded:Connect(function(v)
+				for i, v in pairs(workspace.Game.Players:GetChildren()) do
+					if not game.Players:FindFirstChild(v.Name) and not v:FindFirstChild("Nextbots_ESP") then
+						LibraryESP:AddESP(v, v.Name, Color3.fromRGB(255,0,0), 14, "Nextbots_ESP")
+						Tracer(v, Color3.new(1))
+					end
+				end
+			end)
+		else
+			NextbotsESP:Disconnect()
+			LibraryESP:Delete("Nextbots_ESP")
+		end
+	end
+})
+Section.Visual:AddToggle({
+	Name = "门票ESP",
+	Default = false,
+	Callback = function(v)
+		if v then
+			for _,v in ipairs(workspace.Game.Effects.Tickets:GetDescendants()) do
+				if v.Parent.Name == "Tickets" then
+					LibraryESP:AddESP(v, "门票", Color3.fromRGB(255,127.5,0), 15, "Ticket_ESP")
+					Tracer(v, Color3.fromRGB(255,127.5,0))
+				end
+			end
+			TicketESP = workspace.Game.Effects.Tickets.ChildAdded:Connect(function(v)
+				for _,v in ipairs(workspace.Game.Effects.Tickets:GetDescendants()) do
+					if v.Parent.Name == "Tickets" then
+						LibraryESP:AddESP(v, "门票", Color3.fromRGB(255,127.5,0), 15, "Ticket_ESP")
+						Tracer(v, Color3.fromRGB(255,127.5,0))
+					end
+				end
+			end)
+		else
+			TicketESP:Disconnect()
+			LibraryESP:Delete("Ticket_ESP")
+		end
+	end
+})
+Section.SettingESP:AddToggle({
+	Name = "追踪连线",
+	Default = false,
+	Callback = function(v)
+		getgenv().TracerESP = v
+	end
+})
+Section.SettingESP:AddToggle({
+	Name = "距离显示",
+	Default = false,
+	Callback = function(v)
+		getgenv().DistanceESP = v
+	end
+})
+Section.SettingESP:AddSlider({
+	Name = "填充透明度",
+	Min = 0,
+	Max = 1,
+	Default = 1,
+	Round = 1,
+	Callback = function(v)
+		getgenv().FillTransparency = v
+	end
+})
+Section.SettingESP:AddSlider({
+	Name = "边框透明度",
+	Min = 0,
+	Max = 1,
+	Default = 0,
+	Round = 1,
+	Callback = function(v)
+		getgenv().OutlineTransparency = v
+	end
+})
+
+local Settings = Tabs.Setting:DrawSection({
+	Name = "UI设置",
+})
+
+Settings:AddToggle({
+	Name = "常驻显示面板",
+	Default = false,
+	Callback = function(v)
+		Window.AlwayShowTab = v;
+	end,
+})
+
+Settings:AddColorPicker({
+	Name = "高亮颜色",
+	Default = Library.Colors.Highlight,
+	Callback = function(v)
+		Library.Colors.Highlight = v;
+		Library:RefreshCurrentColor();
+	end,
+})
+
+Settings:AddColorPicker({
+	Name = "开关颜色",
+	Default = Library.Colors.Toggle,
+	Callback = function(v)
+		Library.Colors.Toggle = v;
+		Library:RefreshCurrentColor(v);
+	end,
+})
+
+Settings:AddColorPicker({
+	Name = "下拉颜色",
+	Default = Library.Colors.DropColor,
+	Callback = function(v)
+		Library.Colors.DropColor = v;
+		Library:RefreshCurrentColor(v);
+	end,
+})
+
+Settings:AddColorPicker({
+	Name = "危险操作色",
+	Default = Library.Colors.Risky,
+	Callback = function(v)
+		Library.Colors.Risky = v;
+		Library:RefreshCurrentColor(v);
+	end,
+})
+
+Settings:AddColorPicker({
+	Name = "鼠标悬停色",
+	Default = Library.Colors.MouseEnter,
+	Callback = function(v)
+		Library.Colors.MouseEnter = v;
+		Library:RefreshCurrentColor(v);
+	end,
+})
+
+Settings:AddColorPicker({
+	Name = "禁用块颜色",
+	Default = Library.Colors.BlockColor,
+	Callback = function(v)
+		Library.Colors.BlockColor = v;
+		Library:RefreshCurrentColor(v);
+	end,
+})
+
+Settings:AddColorPicker({
+	Name = "背景颜色",
+	Default = Library.Colors.BGDBColor,
+	Callback = function(v)
+		Library.Colors.BGDBColor = v;
+		Library:RefreshCurrentColor(v);
+	end,
+})
+
+Settings:AddColorPicker({
+	Name = "块背景色",
+	Default = Library.Colors.BlockBackground,
+	Callback = function(v)
+		Library.Colors.BlockBackground = v;
+		Library:RefreshCurrentColor(v);
+	end,
+})
+
+Settings:AddColorPicker({
+	Name = "描边颜色",
+	Default = Library.Colors.StrokeColor,
+	Callback = function(v)
+		Compkiller.Colors.StrokeColor = v;
+		Library:RefreshCurrentColor(v);
+	end,
+})
+
+Settings:AddColorPicker({
+	Name = "高亮描边",
+	Default = Library.Colors.HighStrokeColor,
+	Callback = function(v)
+		Library.Colors.HighStrokeColor = v;
+		Library:RefreshCurrentColor(v);
+	end,
+})
+
+Settings:AddColorPicker({
+	Name = "开关背景色",
+	Default = Library.Colors.SwitchColor,
+	Callback = function(v)
+		Library.Colors.SwitchColor = v;
+		Library:RefreshCurrentColor(v);
+	end,
+})
+
+Settings:AddColorPicker({
+	Name = "线条颜色",
+	Default = Library.Colors.LineColor,
+	Callback = function(v)
+		Library.Colors.LineColor = v;
+		Library:RefreshCurrentColor(v);
+	end,
+})
+
+ThemeTab:DrawSection({
+	Name = "UI主题"
+}):AddDropdown({
+	Name = "选择主题",
+	Default = "默认",
+	Values = {
+		"默认",
+		"深绿",
+		"深蓝",
+		"紫玫瑰",
+		"Skeet"
+	},
+	Callback = function(v)
+		Library:SetTheme(v)
+	end
+})
+
+-- 创建配置页面
+local ConfigUI = Window:DrawConfig({
+	Name = "配置管理",
+	Icon = "folder",
+	Config = ConfigManager
+})
+
+ConfigUI:Init()
